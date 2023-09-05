@@ -53,7 +53,7 @@ func parseRangeOption(option string) (float64, float64, bool) {
 	return min, max, true
 }
 
-func applyGenerate(p *plugin.Plugin, host string, basePath string) (*swaggerObject, error) {
+func applyGenerate(p *plugin.Plugin, host string, basePath string, jwtmiddleware string) (*swaggerObject, error) {
 	title, _ := strconv.Unquote(p.Api.Info.Properties["title"])
 	version, _ := strconv.Unquote(p.Api.Info.Properties["version"])
 	desc, _ := strconv.Unquote(p.Api.Info.Properties["desc"])
@@ -90,7 +90,7 @@ func applyGenerate(p *plugin.Plugin, host string, basePath string) (*swaggerObje
 	// s.Security = append(s.Security, swaggerSecurityRequirementObject{"apiKey": []string{}})
 
 	requestResponseRefs := refMap{}
-	renderServiceRoutes(p.Api.Service, p.Api.Service.Groups, s.Paths, requestResponseRefs)
+	renderServiceRoutes(p.Api.Service, p.Api.Service.Groups, s.Paths, requestResponseRefs, jwtmiddleware)
 	m := messageMap{}
 
 	renderReplyAsDefinition(s.Definitions, m, p.Api.Types, requestResponseRefs)
@@ -98,7 +98,7 @@ func applyGenerate(p *plugin.Plugin, host string, basePath string) (*swaggerObje
 	return &s, nil
 }
 
-func renderServiceRoutes(service spec.Service, groups []spec.Group, paths swaggerPathsObject, requestResponseRefs refMap) {
+func renderServiceRoutes(service spec.Service, groups []spec.Group, paths swaggerPathsObject, requestResponseRefs refMap, jwtmiddleware string) {
 	for _, group := range groups {
 		for _, route := range group.Routes {
 			path := group.GetAnnotation("prefix") + route.Path
@@ -359,6 +359,14 @@ func renderServiceRoutes(service spec.Service, groups []spec.Group, paths swagge
 
 			if group.Annotation.Properties["jwt"] != "" {
 				operationObject.Security = &[]swaggerSecurityRequirementObject{{"apiKey": []string{}}}
+			}
+			if jwtmiddleware != "" {
+				middlewares := strings.Split(group.Annotation.Properties["middleware"], ",")
+				for _, v := range middlewares {
+					if jwtmiddleware == v {
+						operationObject.Security = &[]swaggerSecurityRequirementObject{{"apiKey": []string{}}}
+					}
+				}
 			}
 
 			switch strings.ToUpper(route.Method) {

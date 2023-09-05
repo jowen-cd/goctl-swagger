@@ -19,5 +19,6 @@ func Generator(ctx *cli.Context) error {
 	}
 	basepath := ctx.String("basepath")
 	host := ctx.String("host")
-	return generate.Do(fileName, host, basepath, p)
+	jwtmiddleware := ctx.String("jwtmiddleware")
+	return generate.Do(fileName, host, basepath, jwtmiddleware, p)
 }

@@ -3,7 +3,7 @@
 ### 1. 编译goctl-swagger插件
 
 ```
-GOPROXY=https://goproxy.cn/,direct go install github.com/zeromicro/goctl-swagger@latest
+GOPROXY=https://goproxy.cn/,direct go install github.com/jowen-cd/goctl-swagger@latest
 ```
 
 ### 2. 配置环境
@@ -52,6 +52,7 @@ GOPROXY=https://goproxy.cn/,direct go install github.com/zeromicro/goctl-swagger
       KeyWord string `form:"keyWord"`
      }
     )
+
     
     service user-api {
      @doc(
@@ -65,13 +66,23 @@ GOPROXY=https://goproxy.cn/,direct go install github.com/zeromicro/goctl-swagger
      )
      @handler login
      post /api/user/login (LoginReq)
+    }
      
+    @server (
+            middleware: Authentication
+    )
+    service user-api {
      @doc(
       summary: "获取用户信息"
      )
      @handler getUserInfo
      get /api/user/:id (UserInfoReq) returns (UserInfoReply)
+    }
      
+    @server (
+            jwt: Auth
+    )
+    service user-api {
      @doc(
       summary: "用户搜索"
      )
@@ -90,6 +101,12 @@ GOPROXY=https://goproxy.cn/,direct go install github.com/zeromicro/goctl-swagger
 
     ```shell script
     goctl api plugin -plugin goctl-swagger="swagger -filename user.json -host 127.0.0.2 -basepath /api" -api user.api -dir .
+    ```
+
+* 指定自定义 jwt middleware [apiKey](https://swagger.io/docs/specification/authentication/)
+
+    ```shell script
+    goctl api plugin -plugin goctl-swagger="swagger -filename user.json -jwtmiddleware Authentication" -api user.api -dir .
     ```
 
 * swagger ui 查看生成的文档
