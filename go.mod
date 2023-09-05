@@ -1,4 +1,4 @@
-module github.com/zeromicro/goctl-swagger
+module github.com/jowen-cd/goctl-swagger
 
 go 1.16
 
@@ -7,5 +7,6 @@ require (
 	github.com/urfave/cli/v2 v2.11.0
 	github.com/zeromicro/go-zero v1.5.4
 	github.com/zeromicro/go-zero/tools/goctl v1.5.4
+	github.com/zeromicro/goctl-swagger v0.1.0
 	golang.org/x/oauth2 v0.7.0
 )
